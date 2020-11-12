@@ -4,6 +4,7 @@ namespace HackAssembler;
 
 class Assembler
 {
+    private const MAX_BITS_FOR_NUMBER = 15;
     private const INITIAL_MEMORY_LABELS_COUNT = 15;
     protected array $jumpMap = [];
     protected array $symbolsMap = [];
@@ -40,7 +41,22 @@ class Assembler
                 continue;
             }
 
-            $code .= $line . PHP_EOL;
+            if (str_starts_with($line, '@')) {
+                $line = str_replace('@', '', $line);
+
+                if (array_key_exists($line, $this->symbolsMap)) {
+                    $line = $this->symbolsMap[$line];
+                }
+
+                $binaryNumber = str_pad(decbin($line), static::MAX_BITS_FOR_NUMBER, '0', STR_PAD_LEFT);
+
+                // remove overflow
+                if (strlen($binaryNumber) > static::MAX_BITS_FOR_NUMBER) {
+                    $binaryNumber = substr($binaryNumber, 0, strlen($binaryNumber) - static::MAX_BITS_FOR_NUMBER);
+                }
+
+                $code .= '0' . $binaryNumber . PHP_EOL;
+            }
         }
 
         if (!feof($file)) {
@@ -48,6 +64,8 @@ class Assembler
         }
 
         fclose($file);
+
+        file_put_contents('out.hack', $code);
 
         return '';
     }
