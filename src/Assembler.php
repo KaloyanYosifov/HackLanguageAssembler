@@ -9,9 +9,45 @@ class Assembler
     protected array $symbolsMap = [];
     protected array $destinationMap = [];
 
-    public function handle(): string
+    public function handle(string $file): string
     {
+        if (!file_exists($file)) {
+            throw new \LogicException('Assembly file doesn\'t exist!');
+        }
+
+        if (!preg_match('~\.asm$~', $file)) {
+            throw new \LogicException('File is not with the assembly extension!');
+        }
+
         $this->init();
+
+        $file = fopen($file, 'r');
+
+        if (!$file) {
+            throw new \LogicException('Couldn\'t open file!');
+        }
+
+        $code = '';
+        while (($line = fgets($file, 4096)) !== false) {
+            // remove comments from line
+            if (($foundCommentPos = strpos($line, '//')) !== false) {
+                $line = substr_replace($line, '', $foundCommentPos);
+            }
+
+            $line = trim($line);
+
+            if (!$line) {
+                continue;
+            }
+
+            $code .= $line . PHP_EOL;
+        }
+
+        if (!feof($file)) {
+            throw new \LogicException('Something went wrong while reading the file.');
+        }
+
+        fclose($file);
 
         return '';
     }
