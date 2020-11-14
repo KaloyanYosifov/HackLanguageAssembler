@@ -16,7 +16,7 @@ class Assembler
         $this->mapRegister = new MapRegister();
     }
 
-    public function handle(string $file, bool $toFile = true): string
+    public function handle(string $file, ?string $outputFile = null, bool $toFile = true): string
     {
         $this->init();
 
@@ -24,7 +24,7 @@ class Assembler
         $code = $this->convertToBinary($file);
 
         if ($toFile) {
-            file_put_contents('out.hack', $code);
+            file_put_contents($outputFile ?? sprintf('%s.%s', pathinfo($file, PATHINFO_FILENAME), 'hack'), $code);
         }
 
         return $toFile ? '' : $code;

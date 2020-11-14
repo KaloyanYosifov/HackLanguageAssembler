@@ -10,10 +10,16 @@ if (php_sapi_name() !== PHP_SAPI) {
 
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
-if ($argc !== 2) {
+if ($argc < 2) {
     echo 'Please specify the file we should translate!';
     exit(1);
 }
 
+$outputFile = null;
+
+if (!empty($argv[2])) {
+    $outputFile = $argv[2];
+}
+
 $assembler = new Assembler();
-$assembler->handle($argv[1]);
+$assembler->handle($argv[1], $outputFile);
