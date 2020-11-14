@@ -25,7 +25,7 @@ class MapRegister
             'KBD' => 24576,
         ];
 
-        for ($i = 0; $i < static::INITIAL_MEMORY_LABELS_COUNT; $i++) {
+        for ($i = 0; $i <= static::INITIAL_MEMORY_LABELS_COUNT; $i++) {
             $this->symbolsMap['R' . $i] = $i;
         }
 
@@ -53,8 +53,8 @@ class MapRegister
             '1' => '111111',
             '-1' => '111010',
             'D' => '001100',
-            'M' => '001100',
             'A' => '110000',
+            'M' => '110000',
             '!D' => '001101',
             '!A' => '110001',
             '!M' => '110001',

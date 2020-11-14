@@ -85,7 +85,7 @@ class Assembler
                 $line = str_replace('@', '', $line);
                 $foundSymbol = $this->mapRegister->findSymbol($line);
 
-                if (!$foundSymbol && !is_numeric($line)) {
+                if (is_null($foundSymbol) && !is_numeric($line)) {
                     $this->mapRegister->registerSymbol($line);
                 }
             }
