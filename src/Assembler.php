@@ -16,36 +16,29 @@ class Assembler
         $this->mapRegister = new MapRegister();
     }
 
-    public function handle(string $file): string
+    public function handle(string $file, bool $toFile = true): string
     {
-        if (!file_exists($file)) {
-            throw new \LogicException('Assembly file doesn\'t exist!');
-        }
-
-        if (!preg_match('~\.asm$~', $file)) {
-            throw new \LogicException('File is not with the assembly extension!');
-        }
-
         $this->init();
 
-        $file = fopen($file, 'r');
+        $this->registerVariablesAndLabels($file);
+        $code = $this->convertToBinary($file);
 
-        if (!$file) {
-            throw new \LogicException('Couldn\'t open file!');
+        if ($toFile) {
+            file_put_contents('out.hack', $code);
         }
 
+        return $toFile ? '' : $code;
+    }
+
+    protected function convertToBinary(string $file): string
+    {
+
         $code = '';
-
-        while (($line = fgets($file, 4096)) !== false) {
-            // remove comments from line
-            if (($foundCommentPos = strpos($line, '//')) !== false) {
-                $line = substr_replace($line, '', $foundCommentPos);
-            }
-
-            $line = trim($line);
+        $this->scanEveryLine($file, function(string $line) use(&$code, &$lineNumber) {
+            $line = $this->formatCodeLine($line);
 
             if (!$line) {
-                continue;
+                return;
             }
 
             if (str_starts_with($line, '@')) {
@@ -68,6 +61,67 @@ class Assembler
             }
 
             $code .= $instructionBit . $line . PHP_EOL;
+        });
+
+        return $code;
+    }
+
+    protected function registerVariablesAndLabels(string $file): void
+    {
+        $lineNumber = 0;
+        $this->scanEveryLine($file, function(string $line) use(&$lineNumber) {
+            $line = $this->formatCodeLine($line);
+
+            if (!$line) {
+                return;
+            }
+
+            if (str_starts_with('(', $line)) {
+                $this->mapRegister->registerSymbol(
+                    preg_replace('~[()]~', '', $line),
+                    $lineNumber
+                );
+            } elseif (str_starts_with($line, '@')) {
+                $line = str_replace('@', '', $line);
+                $foundSymbol = $this->mapRegister->findSymbol($line);
+
+                if (!$foundSymbol && !is_numeric($line)) {
+                    $this->mapRegister->registerSymbol($line);
+                }
+            }
+
+            $lineNumber++;
+        });
+    }
+
+    protected function formatCodeLine(string $line): string
+    {
+        // remove comments from line
+        if (($foundCommentPos = strpos($line, '//')) !== false) {
+            $line = substr_replace($line, '', $foundCommentPos);
+        }
+
+        return trim($line);
+    }
+
+    protected function scanEveryLine(string $file, callable $callback) {
+        if (!file_exists($file)) {
+            throw new \LogicException('Assembly file doesn\'t exist!');
+        }
+
+        if (!preg_match('~\.asm$~', $file)) {
+            throw new \LogicException('File is not with the assembly extension!');
+        }
+
+        $file = fopen($file, 'r');
+
+        if (!$file) {
+            throw new \LogicException('Couldn\'t open file!');
+        }
+
+
+        while (($line = fgets($file, 4096)) !== false) {
+            $callback($line);
         }
 
         if (!feof($file)) {
@@ -75,8 +129,6 @@ class Assembler
         }
 
         fclose($file);
-
-        file_put_contents('out.hack', $code);
 
         return '';
     }

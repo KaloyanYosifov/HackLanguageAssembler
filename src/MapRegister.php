@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace HackAssembler;
 
@@ -86,19 +87,19 @@ class MapRegister
         return $this;
     }
 
-    public function registerSymbol(string $name): self
+    public function registerSymbol(string $name, ?int $value = null): self
     {
         if (!$this->findSymbol($name)) {
-            $this->symbolsMap[$name] = $this->newVariablesMemoryStart++;
+            $this->symbolsMap[$name] = $value ?? $this->newVariablesMemoryStart++;
         }
 
         return $this;
     }
 
-    public function findSymbol(string $symbolName): string
+    public function findSymbol(string $symbolName): ?int
     {
         if (!array_key_exists($symbolName, $this->symbolsMap)) {
-            return '';
+            return null;
         }
 
         return $this->symbolsMap[$symbolName];
