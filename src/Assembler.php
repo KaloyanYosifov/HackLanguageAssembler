@@ -35,7 +35,6 @@ class Assembler
         }
 
         $code = '';
-        $instructionBit = AssemblerConstants::A_INSTRUCTION;
 
         while (($line = fgets($file, 4096)) !== false) {
             // remove comments from line
