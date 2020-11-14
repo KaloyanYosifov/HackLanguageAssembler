@@ -10,6 +10,7 @@ class MapRegister
     protected array $symbolsMap = [];
     protected array $destinationMap = [];
     protected array $aluControlBits = [];
+    protected int $newVariablesMemoryStart = 16;
 
     public function init(): self
     {
@@ -81,6 +82,15 @@ class MapRegister
             'M|D' => '010101',
             'D|M' => '010101',
         ];
+
+        return $this;
+    }
+
+    public function registerSymbol(string $name): self
+    {
+        if (!$this->findSymbol($name)) {
+            $this->symbolsMap[$name] = $this->newVariablesMemoryStart++;
+        }
 
         return $this;
     }
