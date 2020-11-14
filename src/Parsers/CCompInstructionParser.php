@@ -3,7 +3,6 @@
 namespace HackAssembler\Parsers;
 
 use HackAssembler\MapRegister;
-use HackAssembler\AssemblerConstants;
 
 class CCompInstructionParser
 {
@@ -13,16 +12,16 @@ class CCompInstructionParser
             return '';
         }
 
+        $memoryTypeBit = '0';
         $destinationBits = '000';
-        $controlBits = '000000';
 
         if (str_contains($line, ';')) {
             $line = explode(';', $line)[0];
         }
 
-        $expression = [];
+        $line = trim($line);
 
-        if (str_contains('=', $line)) {
+        if (str_contains($line, '=')) {
             $explodedInstruction = explode('=', $line);
             $assignedTo =  $explodedInstruction[0];
             $expression =  $explodedInstruction[1];
@@ -32,6 +31,12 @@ class CCompInstructionParser
             $expression = $line;
         }
 
-        return $destinationBits;
+        $controlBits = $mapRegister->findAluControlBits($expression);
+
+        if (str_contains($expression, 'M')) {
+            $memoryTypeBit = '1';
+        }
+
+        return $memoryTypeBit . $controlBits . $destinationBits;
     }
 }

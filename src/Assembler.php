@@ -3,6 +3,8 @@
 namespace HackAssembler;
 
 use HackAssembler\Parsers\AInstructionParser;
+use HackAssembler\Parsers\CCompInstructionParser;
+use HackAssembler\Parsers\CJumpInstructionParser;
 
 class Assembler
 {
@@ -53,6 +55,13 @@ class Assembler
                 $instructionBit = AssemblerConstants::A_INSTRUCTION;
             } else {
                 $instructionBit = AssemblerConstants::C_INSTRUCTION;
+
+                $lineInBinaryCode = '';
+                foreach ($this->cInstructionParsers as $parser) {
+                    $lineInBinaryCode .= (new $parser)->handle($line, $this->mapRegister);
+                }
+
+                $line = $lineInBinaryCode;
             }
 
             if (strlen($line) > AssemblerConstants::MAX_BITS_FOR_NUMBER) {
@@ -76,6 +85,9 @@ class Assembler
     protected function init(): void
     {
         $this->mapRegister->init();
-        $this->cInstructionParsers = [];
+        $this->cInstructionParsers = [
+            CCompInstructionParser::class,
+            CJumpInstructionParser::class,
+        ];
     }
 }
