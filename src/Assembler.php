@@ -2,9 +2,12 @@
 
 namespace HackAssembler;
 
+use HackAssembler\Parsers\AInstructionParser;
+
 class Assembler
 {
     protected MapRegister $mapRegister;
+    protected array $cInstructionParsers = [];
 
     public function __construct()
     {
@@ -73,5 +76,6 @@ class Assembler
     protected function init(): void
     {
         $this->mapRegister->init();
+        $this->cInstructionParsers = [];
     }
 }

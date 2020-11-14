@@ -1,6 +1,9 @@
 <?php
 
-namespace HackAssembler;
+namespace HackAssembler\Parsers;
+
+use HackAssembler\MapRegister;
+use HackAssembler\AssemblerConstants;
 
 class AInstructionParser
 {

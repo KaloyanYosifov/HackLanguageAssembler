@@ -9,6 +9,7 @@ class MapRegister
     protected array $jumpMap = [];
     protected array $symbolsMap = [];
     protected array $destinationMap = [];
+    protected array $aluControlBits = [];
 
     public function init(): self
     {
@@ -27,7 +28,6 @@ class MapRegister
         }
 
         $this->jumpMap = [
-            'null' => '000',
             'JGT' => '001',
             'JGE' => '011',
             'JLT' => '100',
@@ -37,7 +37,6 @@ class MapRegister
         ];
 
         $this->destinationMap = [
-            'null' => '000',
             'M' => '001',
             'D' => '010',
             'MD' => '011',
@@ -57,5 +56,32 @@ class MapRegister
         }
 
         return $this->symbolsMap[$symbolName];
+    }
+
+    public function findDestination(string $destionationName): string
+    {
+        if (!array_key_exists($destionationName, $this->destinationMap)) {
+            return '000';
+        }
+
+        return $this->destinationMap[$destionationName];
+    }
+
+    public function findJump(string $jumpName): string
+    {
+        if (!array_key_exists($jumpName, $this->jumpMap)) {
+            return '000';
+        }
+
+        return $this->jumpMap[$jumpName];
+    }
+
+    public function findAluControlBit(string $instruction): string
+    {
+        if (!array_key_exists($instruction, $this->aluControlBits)) {
+            return '000';
+        }
+
+        return $this->aluControlBits[$instruction];
     }
 }
