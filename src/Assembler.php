@@ -76,7 +76,7 @@ class Assembler
                 return;
             }
 
-            if (str_starts_with('(', $line)) {
+            if (str_starts_with($line, '(')) {
                 $this->mapRegister->registerSymbol(
                     preg_replace('~[()]~', '', $line),
                     $lineNumber
