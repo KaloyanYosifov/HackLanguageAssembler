@@ -89,7 +89,7 @@ class MapRegister
 
     public function registerSymbol(string $name, ?int $value = null): self
     {
-        if (!$this->findSymbol($name) || $value) {
+        if (is_null($this->findSymbol($name)) || $value) {
             $this->symbolsMap[$name] = $value ?? $this->newVariablesMemoryStart++;
         }
 

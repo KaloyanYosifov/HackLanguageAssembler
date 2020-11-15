@@ -69,7 +69,9 @@ class Assembler
     protected function registerVariablesAndLabels(string $file): void
     {
         $lineNumber = 0;
-        $this->scanEveryLine($file, function(string $line) use(&$lineNumber) {
+        $labelsFound = [];
+        $symbolsFound = [];
+        $this->scanEveryLine($file, function(string $line) use(&$lineNumber, &$labelsFound, &$symbolsFound) {
             $line = $this->formatCodeLine($line);
 
             if (!$line) {
@@ -77,10 +79,7 @@ class Assembler
             }
 
             if (str_starts_with($line, '(')) {
-                $this->mapRegister->registerSymbol(
-                    preg_replace('~[()]~', '', $line),
-                    $lineNumber
-                );
+                $labelsFound[preg_replace('~[()]~', '', $line)] = $lineNumber;
 
                 return;
             } elseif (str_starts_with($line, '@')) {
@@ -88,12 +87,24 @@ class Assembler
                 $foundSymbol = $this->mapRegister->findSymbol($line);
 
                 if (is_null($foundSymbol) && !is_numeric($line)) {
-                    $this->mapRegister->registerSymbol($line);
+                    $symbolsFound[] = $line;
                 }
             }
 
             $lineNumber++;
         });
+
+        foreach ($labelsFound as $label => $lineNumber) {
+            $this->mapRegister->registerSymbol($label, $lineNumber);
+        }
+
+        foreach ($symbolsFound as $symbol) {
+            if (array_key_exists($symbol, $labelsFound)) {
+                continue;
+            }
+
+            $this->mapRegister->registerSymbol($symbol);
+        }
     }
 
     protected function formatCodeLine(string $line): string
