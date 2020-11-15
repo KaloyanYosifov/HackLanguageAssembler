@@ -34,10 +34,10 @@ class Assembler
     {
 
         $code = '';
-        $this->scanEveryLine($file, function(string $line) use(&$code, &$lineNumber) {
+        $this->scanEveryLine($file, function(string $line) use(&$code) {
             $line = $this->formatCodeLine($line);
 
-            if (!$line) {
+            if (!$line || str_starts_with($line, '(')) {
                 return;
             }
 
@@ -81,6 +81,8 @@ class Assembler
                     preg_replace('~[()]~', '', $line),
                     $lineNumber
                 );
+
+                return;
             } elseif (str_starts_with($line, '@')) {
                 $line = str_replace('@', '', $line);
                 $foundSymbol = $this->mapRegister->findSymbol($line);
